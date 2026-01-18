@@ -1,0 +1,56 @@
+name: Deploy Backend to Cloud Run
+
+on:
+  push:
+    branches:
+      - main # 只有推送到 main 分支時才觸發
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: asia-east1
+  REPOSITORY: osa-backend-repo
+  SERVICE_NAME: osa-backend
+  IMAGE_NAME: osa-backend-image
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 檢出程式碼
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. 驗證 GCP 身分
+      - name: Google Auth
+        id: auth
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+
+      # 3. 設定 gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      # 4. 設定 Docker 認證 (對應 Artifact Registry)
+      - name: Authorize Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      # 5. 建構並推送 Docker 鏡像
+      - name: Build and Push Container
+        run: |
+          DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          docker build -t $DOCKER_TAG .
+          docker push $DOCKER_TAG
+          echo "IMAGE_URL=$DOCKER_TAG" >> $GITHUB_ENV
+
+      # 6. 部署到 Cloud Run
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }},ALLOWED_ORIGINS=http://localhost:5173" \
+            --allow-unauthenticated

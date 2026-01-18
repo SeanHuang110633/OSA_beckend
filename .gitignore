@@ -1,0 +1,39 @@
+# 1. 程式運行產生的暫存檔
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 2. 環境與密鑰 (極度重要)
+.env
+.env.*
+!.env.example    # 如果有範本檔則不排除
+venv/
+ENV/
+env/
+
+# 3. 資料庫與備份檔
+# 防止先前的 SQLite 遺毒或 MySQL 備份檔流出
+*.db
+*.sqlite3
+osa_backup.sql
+*.sql
+
+# 4. 上傳與靜態資源
+# 這裡對應 main.py 中掛載的 uploads 目錄
+uploads/
+/uploads/*
+!uploads/.gitkeep
+
+# 5. IDE 與編輯器設定
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store (MacOS 專用)
+
+# 6. Docker 相關
+.dockerignore
