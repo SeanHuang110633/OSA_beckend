@@ -19,7 +19,7 @@ from app.routers import event_router
 async def lifespan(app: FastAPI):
     # 啟動時執行：自動建立資料庫表格 (對應 SQLModel table=True 的模型)
     print("🚀 System starting up... Creating database tables...")
-    create_db_and_tables()
+    # create_db_and_tables()
     yield
     # 關閉時執行 (如果需要釋放資源寫在這裡)
     print("🛑 System shutting down...")
