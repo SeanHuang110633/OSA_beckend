@@ -8,7 +8,7 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: asia-east1
-  REPOSITORY: osa-backend-docker
+  REPOSITORY: osa-website-docker
   SERVICE_NAME: osa-backend
   IMAGE_NAME: osa-backend-image
 
