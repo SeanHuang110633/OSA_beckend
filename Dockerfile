@@ -15,6 +15,8 @@ ENV PORT=8080
 # 4. 安裝系統依賴（僅安裝執行 pymysql 所需的最小基礎套件）
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    ca-certificates \
+    && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # 5. 安裝 Python 套件
